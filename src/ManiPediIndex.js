@@ -19,10 +19,33 @@ const ManiPediIndex = () => {
   const maxPrice = 50;
   const maxTime = 5;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitted:', formData);
-    setFormData({ city: '', price: '', time: '' });
+    console.log('Starting submission with data:', formData);
+    
+    try {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      console.log('Response status:', response.status);
+      const result = await response.json();
+      console.log('Response data:', result);
+  
+      if (result.success) {
+        alert('Thank you for your submission!');
+        setFormData({ city: '', price: '', time: '' });
+      } else {
+        alert(`Error: ${result.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Detailed error:', error);
+      alert('Error submitting data. Please try again.');
+    }
   };
 
   return (
