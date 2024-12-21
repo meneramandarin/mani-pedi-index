@@ -1,32 +1,43 @@
 import { createClient } from '@supabase/supabase-js'
 
+export const config = {
+  runtime: 'edge',
+  unstable_allowDynamic: [
+    '/node_modules/@supabase/supabase-js/**',
+  ],
+}
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 )
 
-export default async function handler(req, res) {
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' })
+    return new Response(
+      JSON.stringify({ message: 'Method not allowed' }),
+      { status: 405, headers: { 'Content-Type': 'application/json' } }
+    )
   }
 
-  const { city, price, time } = req.body
-
   try {
-    // Basic validation
-    if (!city || !price || !time) {
-      throw new Error('Missing required fields')
-    }
+    const body = await req.json()
+    const { city, price, time } = body
 
-    // Insert data
     const { data, error } = await supabase
       .from('mani_pedi_data')
       .insert([{ city, price, time }])
 
     if (error) throw error
 
-    res.status(200).json({ success: true, data })
+    return new Response(
+      JSON.stringify({ success: true, data }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message })
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    )
   }
 }

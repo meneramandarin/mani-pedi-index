@@ -23,6 +23,12 @@ const ManiPediIndex = () => {
     e.preventDefault();
     console.log('Starting submission with data:', formData);
     
+    const payload = {
+      city: formData.city,
+      price: Number(formData.price),
+      time: Number(formData.time)
+    };
+
     try {
       const response = await fetch('/api/submit', {
         method: 'POST',
