@@ -23,24 +23,30 @@ const ManiPediIndex = () => {
     e.preventDefault();
     console.log('Starting submission with data:', formData);
     
-    const payload = {
-      city: formData.city,
-      price: Number(formData.price),
-      time: Number(formData.time)
-    };
-
     try {
       const response = await fetch('/api/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          city: formData.city,
+          price: Number(formData.price),
+          time: Number(formData.time)
+        })
       });
       
       console.log('Response status:', response.status);
-      const result = await response.json();
-      console.log('Response data:', result);
+      const text = await response.text();
+      console.log('Raw response:', text);
+      
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('Invalid response from server');
+      }
   
       if (result.success) {
         alert('Thank you for your submission!');
