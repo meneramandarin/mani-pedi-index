@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ManiPediIndex = () => {
   const [formData, setFormData] = useState({
@@ -6,15 +6,50 @@ const ManiPediIndex = () => {
     price: '',
     time: '',
   });
+  const [allData, setAllData] = useState([]);
 
-  const data = [
-    { city: 'San Francisco', price: 45, time: 1.5 },
-    { city: 'Tokyo', price: 25, time: 1.0 },
-    { city: 'Berlin', price: 36, time: 1.3 },
-    { city: 'CDMX', price: 15, time: 1.1 },
-    { city: 'Istanbul', price: 13, time: 3.0 },
-    { city: 'Capetown', price: 20, time: 3.5 }
-  ];
+  console.log('Environment variables:', {
+    isDev: process.env.NODE_ENV === 'development',
+    url: process.env.REACT_APP_SUPABASE_URL,
+    hasKey: !!process.env.REACT_APP_SUPABASE_ANON_KEY
+  });
+
+  const isDev = process.env.NODE_ENV === 'development';
+  const fetchUrl = isDev ? 
+    `${process.env.REACT_APP_SUPABASE_URL}/rest/v1/mani_pedi_data?select=*` : 
+    '/api/getData';
+    
+  const fetchOptions = isDev ? {
+    headers: {
+      'apikey': process.env.REACT_APP_SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    }
+  } : {};
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log('Attempting to fetch from:', fetchUrl);
+        console.log('With options:', fetchOptions);
+        
+        const response = await fetch(fetchUrl, fetchOptions);
+        const result = await response.json();
+        console.log('Fetch result:', result);
+        
+        if (isDev) {
+          setAllData(result);
+        } else if (result.success) {
+          setAllData(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [fetchUrl]);
 
   const maxPrice = 50;
   const maxTime = 5;
@@ -51,6 +86,14 @@ const ManiPediIndex = () => {
       if (result.success) {
         alert('Thank you for your submission!');
         setFormData({ city: '', price: '', time: '' });
+        // Fetch updated data after successful submission
+        const updatedResponse = await fetch(fetchUrl, fetchOptions);
+        const updatedResult = await updatedResponse.json();
+        if (isDev) {
+          setAllData(updatedResult);
+        } else if (updatedResult.success) {
+          setAllData(updatedResult.data);
+        }
       } else {
         alert(`Error: ${result.error || 'Unknown error'}`);
       }
@@ -85,13 +128,13 @@ const ManiPediIndex = () => {
 
           {/* Plot points */}
           <div className="absolute inset-16 border-pink-200 border-l border-b">
-            {data.map((city) => {
+            {allData.map((city, index) => {
               const x = (city.price / maxPrice) * 100;
               const y = (city.time / maxTime) * 100;
               
               return (
                 <div
-                  key={city.city}
+                  key={`${city.city}-${index}`}
                   className="absolute"
                   style={{
                     left: `${x}%`,
