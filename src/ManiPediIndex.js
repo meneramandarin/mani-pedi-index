@@ -54,21 +54,22 @@ const ManiPediIndex = () => {
     fetchData();
   }, [fetchUrl]);
 
-  const OPENCAGE_API_KEY = process.env.REACT_APP_OPENCAGE_API_KEY;
+  const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-  // Function to fetch data from OpenCage Geocoding API
+  // Google Maps API call
   const fetchCities = async (inputValue) => {
     try {
       const response = await fetch(
-        `https://api.opencagedata.com/geocode/v1/json?q=${inputValue}&key=${OPENCAGE_API_KEY}&limit=5`
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${inputValue}&key=${GOOGLE_MAPS_API_KEY}`
       );
       const data = await response.json();
 
+      // Adapt the response to match the format expected by react-select:
       return data.results.map((result) => ({
-        value: result.formatted, // The formatted address (e.g., "London, England")
-        label: result.formatted,
-        lat: result.geometry.lat, // Latitude (optional, for plotting on a map later)
-        lng: result.geometry.lng, // Longitude (optional)
+        value: result.formatted_address,
+        label: result.formatted_address,
+        lat: result.geometry.location.lat,
+        lng: result.geometry.location.lng,
       }));
     } catch (error) {
       console.error('Error fetching geocoding data:', error);
