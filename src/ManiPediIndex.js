@@ -1,3 +1,12 @@
+// TODO:
+// shorten cities, e.g. not London, UK, but just London 
+// calculate avergaes for cities, combine cities 
+// distinguish between mani and pedi
+// combined data view
+// mani only 
+// pedi only 
+// add saloons??? - not sure 
+
 import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
 
@@ -18,7 +27,7 @@ const ManiPediIndex = () => {
   const isDev = process.env.NODE_ENV === 'development';
   const fetchUrl = isDev
     ? `${process.env.REACT_APP_SUPABASE_URL}/rest/v1/mani_pedi_data?select=*`
-    : '/api/getData';
+    : '/api/getAggregatedData';
 
   const fetchOptions = isDev
     ? {
