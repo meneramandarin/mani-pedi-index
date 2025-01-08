@@ -72,13 +72,24 @@ const ManiPediIndex = () => {
         `https://maps.googleapis.com/maps/api/geocode/json?address=${inputValue}&key=${GOOGLE_MAPS_API_KEY}`
       );
       const data = await response.json();
-
-      // Adapt the response to match the format expected by react-select:
+  
       return data.results.map((result) => ({
         value: result.formatted_address,
         label: result.formatted_address,
         lat: result.geometry.location.lat,
         lng: result.geometry.location.lng,
+        // Store the address components for later use
+        address_components: result.address_components,
+        // Optional: Parse components now
+        parsedComponents: {
+          neighborhood: result.address_components.find(c => 
+            c.types.includes('sublocality_level_1') || 
+            c.types.includes('neighborhood'))?.long_name,
+          city: result.address_components.find(c => 
+            c.types.includes('locality'))?.long_name,
+          country: result.address_components.find(c => 
+            c.types.includes('country'))?.long_name
+        }
       }));
     } catch (error) {
       console.error('Error fetching geocoding data:', error);
@@ -105,6 +116,8 @@ const ManiPediIndex = () => {
         },
         body: JSON.stringify({
           city: selectedCity.value,
+          neighborhood: selectedCity.parsedComponents.neighborhood || null,
+          country: selectedCity.parsedComponents.country,
           price: Number(formData.price),
           time: Number(formData.time),
         }),

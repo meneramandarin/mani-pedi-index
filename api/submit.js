@@ -18,10 +18,16 @@ export default async function handler(req, res) {
   // Handle POST request
   if (req.method === 'POST') {
     try {
-      const { city, price, time } = req.body
+      const { city, neighborhood, country, price, time } = req.body
       const { data, error } = await supabase
         .from('mani_pedi_data')
-        .insert([{ city, price, time }])
+        .insert([{ 
+          city, 
+          neighborhood, 
+          country, 
+          price, 
+          time 
+        }])
 
       if (error) throw error
 

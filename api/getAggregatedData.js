@@ -12,8 +12,11 @@ async function aggregateData(rawData) {
     
     const groupedData = rawData.reduce((acc, curr) => {
       console.log('Processing city:', curr.city);
-      if (!acc[curr.city]) {
-        acc[curr.city] = {
+      if (!acc[key]) {
+        acc[key] = {
+          city: curr.city,
+          neighborhood: curr.neighborhood,
+          country: curr.country,
           priceSum: 0,
           timeSum: 0,
           count: 0
@@ -27,15 +30,14 @@ async function aggregateData(rawData) {
   
     console.log('Grouped data:', groupedData);
     
-    const result = Object.entries(groupedData).map(([city, data]) => ({
-      city,
-      price: data.priceSum / data.count,
-      time: data.timeSum / data.count
-    }));
-    
-    console.log('Final aggregated data:', result);
-    return result;
-  }
+    return Object.values(groupedData).map(data => ({
+        city: data.city,
+        neighborhood: data.neighborhood,
+        country: data.country,
+        price: data.priceSum / data.count,
+        time: data.timeSum / data.count
+      }));
+    }
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
