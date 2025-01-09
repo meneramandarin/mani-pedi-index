@@ -1,6 +1,5 @@
 // TODO:
-// shorten cities, e.g. not London, UK, but just London 
-// calculate avergaes for cities, combine cities 
+
 // distinguish between mani and pedi
 // combined data view
 // mani only 
@@ -14,6 +13,8 @@ const ManiPediIndex = () => {
   const [formData, setFormData] = useState({
     price: '',
     time: '',
+    is_mani: false,
+    is_pedi: false
   });
   const [selectedCity, setSelectedCity] = useState(null);
   const [allData, setAllData] = useState([]);
@@ -107,53 +108,74 @@ const ManiPediIndex = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Starting submission with data:', formData, selectedCity);
+ 
+    // Debug log to see what we're getting from Google Maps
+    console.log('Selected city data:', {
+        fullValue: selectedCity.value,
+        parsedCity: selectedCity.parsedComponents.city,
+        neighborhood: selectedCity.parsedComponents.neighborhood,
+        country: selectedCity.parsedComponents.country
+    });
 
-    try {
-      const response = await fetch('/api/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          city: selectedCity.value,
-          neighborhood: selectedCity.parsedComponents.neighborhood || null,
-          country: selectedCity.parsedComponents.country,
-          price: Number(formData.price),
-          time: Number(formData.time),
-        }),
-      });
-
-      console.log('Response status:', response.status);
-      const text = await response.text();
-      console.log('Raw response:', text);
-
-      let result;
-      try {
-        result = JSON.parse(text);
-      } catch (e) {
-        console.error('Failed to parse response:', e);
-        throw new Error('Invalid response from server');
-      }
-
-      if (result.success) {
-        alert('Thank you for your submission!');
-        setFormData({ city: '', price: '', time: '' });
-        // Fetch updated data after successful submission
-        const updatedResponse = await fetch(fetchUrl, fetchOptions);
-        const updatedResult = await updatedResponse.json();
-        if (isDev) {
-          setAllData(updatedResult);
-        } else if (updatedResult.success) {
-          setAllData(updatedResult.data);
-        }
-      } else {
-        alert(`Error: ${result.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Detailed error:', error);
-      alert('Error submitting data. Please try again.');
+    // Mani or Pedi 
+    if (!formData.is_mani && !formData.is_pedi) {
+      alert('Please select at least one service type');
+      return;
     }
-  };
+
+    // Create the submission data object
+    const submitData = {
+        city: selectedCity.parsedComponents.city || selectedCity.value,
+        neighborhood: selectedCity.parsedComponents.neighborhood || null,
+        country: selectedCity.parsedComponents.country,
+        price: Number(formData.price),
+        time: Number(formData.time),
+        is_mani: formData.is_mani,
+        is_pedi: formData.is_pedi
+    };
+ 
+    console.log('Submitting data:', submitData);
+ 
+    try {
+        const response = await fetch('/api/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submitData)
+        });
+ 
+        console.log('Response status:', response.status);
+        const text = await response.text();
+        console.log('Raw response:', text);
+ 
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Failed to parse response:', e);
+            throw new Error('Invalid response from server');
+        }
+ 
+        if (result.success) {
+            alert('Thank you for your submission!');
+            setFormData({ city: '', price: '', time: '' });
+            // Fetch updated data after successful submission
+            const updatedResponse = await fetch(fetchUrl, fetchOptions);
+            const updatedResult = await updatedResponse.json();
+            if (isDev) {
+                setAllData(updatedResult);
+            } else if (updatedResult.success) {
+                setAllData(updatedResult.data);
+            }
+        } else {
+            alert(`Error: ${result.error || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Detailed error:', error);
+        alert('Error submitting data. Please try again.');
+    }
+ };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
@@ -258,6 +280,26 @@ const ManiPediIndex = () => {
               value={selectedCity}
             />
           </div>
+    <div className="space-y-2">
+  <label className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      checked={formData.is_mani}
+      onChange={e => setFormData({...formData, is_mani: e.target.checked})}
+      className="rounded border-pink-300 text-pink-500 focus:ring-pink-500"
+    />
+    <span className="text-pink-800">Manicure</span>
+  </label>
+  <label className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      checked={formData.is_pedi}
+      onChange={e => setFormData({...formData, is_pedi: e.target.checked})}
+      className="rounded border-pink-300 text-pink-500 focus:ring-pink-500"
+    />
+    <span className="text-pink-800">Pedicure</span>
+  </label>
+</div>
           <div>
             <label className="block text-sm font-medium text-pink-800 mb-2">
               Price (USD)
