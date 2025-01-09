@@ -8,10 +8,9 @@ const supabase = createClient(
 )
 
 async function aggregateData(rawData) {
-    console.log('Raw data received:', rawData);
-    
     const groupedData = rawData.reduce((acc, curr) => {
-      console.log('Processing city:', curr.city);
+      const key = curr.city;
+      
       if (!acc[key]) {
         acc[key] = {
           city: curr.city,
@@ -19,25 +18,28 @@ async function aggregateData(rawData) {
           country: curr.country,
           priceSum: 0,
           timeSum: 0,
-          count: 0
+          count: 0,
+          is_mani: curr.is_mani,
+          is_pedi: curr.is_pedi
         };
       }
-      acc[curr.city].priceSum += curr.price;
-      acc[curr.city].timeSum += curr.time;
-      acc[curr.city].count += 1;
+      
+      acc[key].priceSum += Number(curr.price);
+      acc[key].timeSum += Number(curr.time);
+      acc[key].count += 1;
       return acc;
     }, {});
   
-    console.log('Grouped data:', groupedData);
-    
     return Object.values(groupedData).map(data => ({
-        city: data.city,
-        neighborhood: data.neighborhood,
-        country: data.country,
-        price: data.priceSum / data.count,
-        time: data.timeSum / data.count
-      }));
-    }
+      city: data.city,
+      neighborhood: data.neighborhood,
+      country: data.country,
+      price: data.priceSum / data.count,
+      time: data.timeSum / data.count,
+      is_mani: data.is_mani,
+      is_pedi: data.is_pedi
+    }));
+  }
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
