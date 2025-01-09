@@ -159,7 +159,12 @@ const ManiPediIndex = () => {
  
         if (result.success) {
             alert('Thank you for your submission!');
-            setFormData({ city: '', price: '', time: '' });
+            setFormData({ 
+              price: '', 
+              time: '', 
+              is_mani: false, 
+              is_pedi: false 
+          });
             // Fetch updated data after successful submission
             const updatedResponse = await fetch(fetchUrl, fetchOptions);
             const updatedResult = await updatedResponse.json();
