@@ -1,10 +1,8 @@
 // TODO:
 
-// distinguish between mani and pedi
-// combined data view
-// mani only 
-// pedi only 
-// add saloons??? - not sure 
+// different data views aka different tables
+// IP address protection
+// email verification?? 
 
 import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
@@ -125,90 +123,127 @@ const ManiPediIndex = () => {
     );
   };
 
+  // block users from submitting more than one data point per city every 3 weeks
+  const checkLastSubmission = (city) => {
+    const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
+    const lastSubmission = submissions[city];
+    const threeWeeksAgo = Date.now() - (21 * 24 * 60 * 60 * 1000);
+    
+    return lastSubmission && lastSubmission > threeWeeksAgo;
+  };
+  
+  const recordSubmission = (city) => {
+    const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
+    submissions[city] = Date.now();
+    localStorage.setItem('maniPediSubmissions', JSON.stringify(submissions));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Starting submission with data:', formData, selectedCity);
- 
+  
     // Debug log to see what we're getting from Google Maps
     console.log('Selected city data:', {
-        fullValue: selectedCity.value,
-        parsedCity: selectedCity.parsedComponents.city,
-        neighborhood: selectedCity.parsedComponents.neighborhood,
-        country: selectedCity.parsedComponents.country
+      fullValue: selectedCity.value,
+      parsedCity: selectedCity.parsedComponents.city,
+      neighborhood: selectedCity.parsedComponents.neighborhood,
+      country: selectedCity.parsedComponents.country,
     });
-
-    // Mani or Pedi 
+  
+    // Check for recent submissions in local storage
+    if (checkLastSubmission(selectedCity.parsedComponents.city)) {
+      const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
+      const lastSubmission = submissions[selectedCity.parsedComponents.city];
+      const timeLeft = lastSubmission + (21 * 24 * 60 * 60 * 1000) - Date.now();
+      const daysLeft = Math.floor(timeLeft / (24 * 60 * 60 * 1000));
+      const hoursLeft = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+      const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+  
+      let timeLeftMessage = '';
+      if (daysLeft > 0) timeLeftMessage += `${daysLeft} days `;
+      if (hoursLeft > 0) timeLeftMessage += `${hoursLeft} hours `;
+      if (minutesLeft > 0) timeLeftMessage += `${minutesLeft} minutes`;
+  
+      alert(`You can only submit data for this city once every 3 weeks. Time left until next submission: ${timeLeftMessage}`);
+      return; // Stop the submission process
+    }
+  
+    // Mani or Pedi
     if (!formData.is_mani && !formData.is_pedi) {
-      alert('pls select at least one service type');
+      alert('Please select at least one service type');
       return;
     }
-
-    // Add rating validation
-    if (formData.rating === 0) {  // Since 0 is our default/unrated state
-      alert('pls leave a rating');
+  
+    // Rating validation
+    if (formData.rating === 0) {
+      alert('Please leave a rating');
       return;
-    }   
-
+    }
+  
     // Create the submission data object
     const submitData = {
-        city: selectedCity.parsedComponents.city || selectedCity.value,
-        neighborhood: selectedCity.parsedComponents.neighborhood || null,
-        country: selectedCity.parsedComponents.country,
-        price: Number(formData.price),
-        time: Number(formData.time),
-        is_mani: formData.is_mani,
-        is_pedi: formData.is_pedi,
-        rating: formData.rating
+      city: selectedCity.parsedComponents.city || selectedCity.value,
+      neighborhood: selectedCity.parsedComponents.neighborhood || null,
+      country: selectedCity.parsedComponents.country,
+      price: Number(formData.price),
+      time: Number(formData.time),
+      is_mani: formData.is_mani,
+      is_pedi: formData.is_pedi,
+      rating: formData.rating,
     };
- 
+  
     console.log('Submitting data:', submitData);
- 
+  
     try {
-        const response = await fetch('/api/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(submitData)
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submitData),
+      });
+  
+      console.log('Response status:', response.status);
+      const text = await response.text();
+      console.log('Raw response:', text);
+  
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('Invalid response from server');
+      }
+  
+      if (result.success) {
+        // Record the submission timestamp in local storage
+        recordSubmission(selectedCity.parsedComponents.city);
+  
+        alert('Thank you for your submission!');
+        setFormData({
+          price: '',
+          time: '',
+          is_mani: false,
+          is_pedi: false,
+          rating: 0,
         });
- 
-        console.log('Response status:', response.status);
-        const text = await response.text();
-        console.log('Raw response:', text);
- 
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            console.error('Failed to parse response:', e);
-            throw new Error('Invalid response from server');
+  
+        // Fetch updated data after successful submission
+        const updatedResponse = await fetch(fetchUrl, fetchOptions);
+        const updatedResult = await updatedResponse.json();
+        if (isDev) {
+          setAllData(updatedResult);
+        } else if (updatedResult.success) {
+          setAllData(updatedResult.data);
         }
- 
-        if (result.success) {
-            alert('Thank you for your submission!');
-            setFormData({ 
-              price: '', 
-              time: '', 
-              is_mani: false, 
-              is_pedi: false,
-              rating: 0 
-          });
-            // Fetch updated data after successful submission
-            const updatedResponse = await fetch(fetchUrl, fetchOptions);
-            const updatedResult = await updatedResponse.json();
-            if (isDev) {
-                setAllData(updatedResult);
-            } else if (updatedResult.success) {
-                setAllData(updatedResult.data);
-            }
-        } else {
-            alert(`Error: ${result.error || 'Unknown error'}`);
-        }
+      } else {
+        alert(`Error: ${result.error || 'Unknown error'}`);
+      }
     } catch (error) {
-        console.error('Detailed error:', error);
-        alert('Error submitting data. Please try again.');
+      console.error('Detailed error:', error);
+      alert('Error submitting data. Please try again.');
     }
- };
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
