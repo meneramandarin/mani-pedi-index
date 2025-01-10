@@ -139,9 +139,15 @@ const ManiPediIndex = () => {
 
     // Mani or Pedi 
     if (!formData.is_mani && !formData.is_pedi) {
-      alert('Please select at least one service type');
+      alert('pls select at least one service type');
       return;
     }
+
+    // Add rating validation
+    if (formData.rating === 0) {  // Since 0 is our default/unrated state
+      alert('pls leave a rating');
+      return;
+    }   
 
     // Create the submission data object
     const submitData = {
@@ -315,7 +321,7 @@ const ManiPediIndex = () => {
       onChange={e => setFormData({...formData, is_mani: e.target.checked})}
       className="rounded border-pink-300 text-pink-500 focus:ring-pink-500"
     />
-    <span className="text-pink-800">Manicure</span>
+    <span className="text-pink-800">Manicure 🫳</span>
   </label>
   <label className="flex items-center space-x-2">
     <input
@@ -324,7 +330,7 @@ const ManiPediIndex = () => {
       onChange={e => setFormData({...formData, is_pedi: e.target.checked})}
       className="rounded border-pink-300 text-pink-500 focus:ring-pink-500"
     />
-    <span className="text-pink-800">Pedicure</span>
+    <span className="text-pink-800">Pedicure 🦶</span>
   </label>
 </div>
           <div>
