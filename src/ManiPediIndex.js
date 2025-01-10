@@ -114,9 +114,11 @@ const ManiPediIndex = () => {
           <button
             key={star}
             onClick={() => setRating(star)}
-            className="text-2xl focus:outline-none"
+            className={`text-2xl focus:outline-none ${
+              star <= rating ? 'text-pink-800' : 'text-pink-300'
+            }`}
           >
-            {star <= rating ? '★' : '☆'}
+            ★
           </button>
         ))}
       </div>
