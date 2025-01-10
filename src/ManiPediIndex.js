@@ -14,7 +14,8 @@ const ManiPediIndex = () => {
     price: '',
     time: '',
     is_mani: false,
-    is_pedi: false
+    is_pedi: false,
+    rating: 0
   });
   const [selectedCity, setSelectedCity] = useState(null);
   const [allData, setAllData] = useState([]);
@@ -105,6 +106,23 @@ const ManiPediIndex = () => {
   const maxPrice = 50;
   const maxTime = 5;
 
+  // Rating
+  const StarRating = ({ rating, setRating }) => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={() => setRating(star)}
+            className="text-2xl focus:outline-none"
+          >
+            {star <= rating ? '★' : '☆'}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Starting submission with data:', formData, selectedCity);
@@ -131,7 +149,8 @@ const ManiPediIndex = () => {
         price: Number(formData.price),
         time: Number(formData.time),
         is_mani: formData.is_mani,
-        is_pedi: formData.is_pedi
+        is_pedi: formData.is_pedi,
+        rating: formData.rating
     };
  
     console.log('Submitting data:', submitData);
@@ -163,7 +182,8 @@ const ManiPediIndex = () => {
               price: '', 
               time: '', 
               is_mani: false, 
-              is_pedi: false 
+              is_pedi: false,
+              rating: 0 
           });
             // Fetch updated data after successful submission
             const updatedResponse = await fetch(fetchUrl, fetchOptions);
@@ -338,6 +358,15 @@ const ManiPediIndex = () => {
               }
               className="w-full rounded-md border-pink-200 shadow-sm focus:border-pink-500 focus:ring-pink-500"
               required
+            />
+          </div>
+          <div>
+          <label className="block text-sm font-medium text-pink-800 mb-2">
+           Rating
+           </label>
+          <StarRating 
+           rating={formData.rating} 
+            setRating={(value) => setFormData({...formData, rating: value})} 
             />
           </div>
           <button
