@@ -1,6 +1,5 @@
 // TODO:
 
-// different data views aka different tables
 // email verification?? 
 
 import React, { useState, useEffect } from 'react';
@@ -131,17 +130,20 @@ const ManiPediIndex = () => {
   };
 
   // block users from submitting more than one data point per city every 3 weeks
-  const checkLastSubmission = (city) => {
+  const checkLastSubmission = (city, isMani) => {
     const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
-    const lastSubmission = submissions[city];
+    const key = `${city}-${isMani ? 'mani' : 'pedi'}`;
+    const lastSubmission = submissions[key];
     const threeWeeksAgo = Date.now() - (21 * 24 * 60 * 60 * 1000);
     
     return lastSubmission && lastSubmission > threeWeeksAgo;
   };
   
-  const recordSubmission = (city) => {
+  // This function records a new submission
+  const recordSubmission = (city, isMani) => {
     const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
-    submissions[city] = Date.now();
+    const key = `${city}-${isMani ? 'mani' : 'pedi'}`;
+    submissions[key] = Date.now();
     localStorage.setItem('maniPediSubmissions', JSON.stringify(submissions));
   };
 
@@ -157,23 +159,40 @@ const ManiPediIndex = () => {
       country: selectedCity.parsedComponents.country,
     });
   
-    // Check for recent submissions in local storage
-    if (checkLastSubmission(selectedCity.parsedComponents.city)) {
-      const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
-      const lastSubmission = submissions[selectedCity.parsedComponents.city];
-      const timeLeft = lastSubmission + (21 * 24 * 60 * 60 * 1000) - Date.now();
-      const daysLeft = Math.floor(timeLeft / (24 * 60 * 60 * 1000));
-      const hoursLeft = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-      const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
-  
-      let timeLeftMessage = '';
-      if (daysLeft > 0) timeLeftMessage += `${daysLeft} days `;
-      if (hoursLeft > 0) timeLeftMessage += `${hoursLeft} hours `;
-      if (minutesLeft > 0) timeLeftMessage += `${minutesLeft} minutes`;
-  
-      alert(`You can only submit data for this city once every 3 weeks. Time left until next submission: ${timeLeftMessage}`);
-      return; // Stop the submission process
-    }
+// Check for recent submissions in local storage
+if (formData.is_mani && checkLastSubmission(selectedCity.parsedComponents.city, true)) {
+  const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
+  const lastSubmission = submissions[`${selectedCity.parsedComponents.city}-mani`];
+  const timeLeft = lastSubmission + (21 * 24 * 60 * 60 * 1000) - Date.now();
+  const daysLeft = Math.floor(timeLeft / (24 * 60 * 60 * 1000));
+  const hoursLeft = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+
+  let timeLeftMessage = '';
+  if (daysLeft > 0) timeLeftMessage += `${daysLeft} days `;
+  if (hoursLeft > 0) timeLeftMessage += `${hoursLeft} hours `;
+  if (minutesLeft > 0) timeLeftMessage += `${minutesLeft} minutes`;
+
+  alert(`You can only submit manicure data for this city once every 3 weeks. Time left until next submission: ${timeLeftMessage}`);
+  return;
+}
+
+if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, false)) {
+  const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
+  const lastSubmission = submissions[`${selectedCity.parsedComponents.city}-pedi`];
+  const timeLeft = lastSubmission + (21 * 24 * 60 * 60 * 1000) - Date.now();
+  const daysLeft = Math.floor(timeLeft / (24 * 60 * 60 * 1000));
+  const hoursLeft = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+
+  let timeLeftMessage = '';
+  if (daysLeft > 0) timeLeftMessage += `${daysLeft} days `;
+  if (hoursLeft > 0) timeLeftMessage += `${hoursLeft} hours `;
+  if (minutesLeft > 0) timeLeftMessage += `${minutesLeft} minutes`;
+
+  alert(`You can only submit pedicure data for this city once every 3 weeks. Time left until next submission: ${timeLeftMessage}`);
+  return;
+}
   
     // Mani or Pedi
     if (!formData.is_mani && !formData.is_pedi) {
@@ -224,7 +243,12 @@ const ManiPediIndex = () => {
   
       if (result.success) {
         // Record the submission timestamp in local storage
-        recordSubmission(selectedCity.parsedComponents.city);
+        if (formData.is_mani) {
+          recordSubmission(selectedCity.parsedComponents.city, true);
+        }
+        if (formData.is_pedi) {
+          recordSubmission(selectedCity.parsedComponents.city, false);
+        }
   
         alert('Thank you for your submission!');
         setFormData({
