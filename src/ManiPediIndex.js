@@ -1,7 +1,6 @@
 // TODO:
 
 // different data views aka different tables
-// IP address protection
 // email verification?? 
 
 import React, { useState, useEffect } from 'react';
@@ -17,6 +16,7 @@ const ManiPediIndex = () => {
   });
   const [selectedCity, setSelectedCity] = useState(null);
   const [allData, setAllData] = useState([]);
+  const [filter, setFilter] = useState('all'); // this is for the graph filter
 
   console.log('Environment variables:', {
     isDev: process.env.NODE_ENV === 'development',
@@ -245,6 +245,13 @@ const ManiPediIndex = () => {
     }
   };
 
+  // filter for mani or only pedi in graph 
+  const filteredData = allData.filter(data => {
+    if (filter === 'mani') return data.is_mani;
+    if (filter === 'pedi') return data.is_pedi;
+    return true; // 'all'
+  });
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <h2 className="text-2xl font-bold text-pink-800 text-center mb-8">
@@ -322,6 +329,34 @@ const ManiPediIndex = () => {
             Time (hrs)
           </div>
         </div>
+      </div>
+
+      {/* Toggle Buttons */}
+      <div className="flex justify-center space-x-4 mb-8">
+        <button
+          onClick={() => setFilter('all')}
+          className={`px-4 py-2 rounded-md ${
+            filter === 'all' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+          }`}
+        >
+          Combined Data
+        </button>
+        <button
+          onClick={() => setFilter('mani')}
+          className={`px-4 py-2 rounded-md ${
+            filter === 'mani' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+          }`}
+        >
+          Manicure Data Only
+        </button>
+        <button
+          onClick={() => setFilter('pedi')}
+          className={`px-4 py-2 rounded-md ${
+            filter === 'pedi' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+          }`}
+        >
+          Pedicure Data Only
+        </button>
       </div>
 
       {/* Form */}
