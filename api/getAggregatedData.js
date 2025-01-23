@@ -10,7 +10,7 @@ async function aggregateData(rawData) {
   
   const groupedData = rawData.reduce((acc, curr) => {
     // Unique key for each city + service type combination
-    const key = `${curr.city}-${curr.is_mani ? 'mani' : 'pedi'}`;
+    const key = curr.city;
     console.log('Processing city and service:', key);
     
     if (!acc[key]) {
