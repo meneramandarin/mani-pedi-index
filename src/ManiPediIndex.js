@@ -17,6 +17,13 @@ const ManiPediIndex = () => {
   const [selectedCity, setSelectedCity] = useState(null);
   const [allData, setAllData] = useState([]);
   const [filter, setFilter] = useState('all'); // this is for the graph filter
+  
+  // This filters the data based on the selected service type
+  const filteredData = allData.filter(data => {
+    if (filter === 'mani') return data.is_mani;
+    if (filter === 'pedi') return data.is_pedi;
+    return true; // 'all'
+});
 
   console.log('Environment variables:', {
     isDev: process.env.NODE_ENV === 'development',
@@ -245,13 +252,6 @@ const ManiPediIndex = () => {
     }
   };
 
-  // filter for mani or only pedi in graph 
-  const filteredData = allData.filter(data => {
-    if (filter === 'mani') return data.is_mani;
-    if (filter === 'pedi') return data.is_pedi;
-    return true; // 'all'
-  });
-
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <h2 className="text-2xl font-bold text-pink-800 text-center mb-8">
@@ -277,7 +277,7 @@ const ManiPediIndex = () => {
 
           {/* Plot points */}
           <div className="absolute inset-16 border-pink-200 border-l border-b">
-            {allData.map((city, index) => {
+            {filteredData.map((city, index) => {
               const x = (city.price / maxPrice) * 100;
               const y = (city.time / maxTime) * 100;
 
