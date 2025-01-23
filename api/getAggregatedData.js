@@ -9,8 +9,9 @@ async function aggregateData(rawData) {
   console.log('Raw data received:', rawData);
   
   const groupedData = rawData.reduce((acc, curr) => {
-    const key = curr.city;
-    console.log('Processing city:', curr.city);
+    // Unique key for each city + service type combination
+    const key = `${curr.city}-${curr.is_mani ? 'mani' : 'pedi'}`;
+    console.log('Processing city and service:', key);
     
     if (!acc[key]) {
       acc[key] = {
@@ -26,6 +27,7 @@ async function aggregateData(rawData) {
       };
     }
     
+    // Accumulate data for the city + service type
     acc[key].priceSum += Number(curr.price);
     acc[key].timeSum += Number(curr.time);
     acc[key].ratingSum += Number(curr.rating);
@@ -40,9 +42,9 @@ async function aggregateData(rawData) {
     city: data.city,
     neighborhood: data.neighborhood,
     country: data.country,
-    price: data.priceSum / data.count,
-    time: data.timeSum / data.count,
-    rating: data.ratingSum / data.count,
+    price: data.priceSum / data.count, // Calculate average price
+    time: data.timeSum / data.count, // Calculate average time
+    rating: data.ratingSum / data.count, // Calculate average rating
     is_mani: data.is_mani,
     is_pedi: data.is_pedi
   }));
