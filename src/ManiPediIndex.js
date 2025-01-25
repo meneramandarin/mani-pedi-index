@@ -282,8 +282,11 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
         💅 Global Mani-Pedi Index 💅
       </h2>
 
-      {/* Chart */}
+      {/* Chart or MAP */}
       <div className="bg-pink-50 rounded-lg p-4 mb-8">
+        {showMap ? (
+          <MapView data={allData} filter={filter} />
+      ) : (
         <div className="relative h-[400px] w-full border border-pink-200 bg-white rounded-lg p-16">
           {/* Y-axis values */}
           <div className="absolute left-4 top-16 bottom-16 flex flex-col justify-between text-sm text-pink-800">
@@ -353,50 +356,53 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
             Time (hrs)
           </div>
         </div>
+      )}
       </div>
 
       {/* Toggle Buttons */}
       <div className="flex justify-center space-x-4 mb-8">
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-md ${
-            filter === 'all' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-          }`}
-        >
-          Combined Data
-        </button>
-        <button
-          onClick={() => setFilter('mani')}
-          className={`px-4 py-2 rounded-md ${
-            filter === 'mani' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-          }`}
-        >
-          Manicure Data Only
-        </button>
-        <button
-          onClick={() => setFilter('pedi')}
-          className={`px-4 py-2 rounded-md ${
-            filter === 'pedi' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-          }`}
-        >
-          Pedicure Data Only
-        </button>
-        <button
-          onClick={() => setShowMap (!showMap)}
-          className={`px-4 py-2 rounded-md ${
-            showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-          }`}
-        >
-          Map View
-        </button>
-        </div>
-
-        {/* Map View */}
-      {showMap && (
-          <div className="bg-pink-50 rounded-lg p-4 mb-8">
-             <MapView data={allData} filter={filter} />
-         </div>
-          )}
+  <button
+    onClick={() => {
+      setFilter('all');
+      setShowMap(false);
+    }}
+    className={`px-4 py-2 rounded-md ${
+      filter === 'all' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+    }`}
+  >
+    Combined Data
+  </button>
+  <button
+    onClick={() => {
+      setFilter('mani');
+      setShowMap(false);
+    }}
+    className={`px-4 py-2 rounded-md ${
+      filter === 'mani' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+    }`}
+  >
+    Manicure Data Only
+  </button>
+  <button
+    onClick={() => {
+      setFilter('pedi');
+      setShowMap(false);
+    }}
+    className={`px-4 py-2 rounded-md ${
+      filter === 'pedi' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+    }`}
+  >
+    Pedicure Data Only
+  </button>
+  <button
+    onClick={() => setShowMap(true)}
+    className={`px-4 py-2 rounded-md ${
+      showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+    }`}
+  >
+    Map View
+  </button>
+</div>
 
       {/* Form */}
       <div className="bg-pink-50 rounded-lg p-6 max-w-xl mx-auto">
