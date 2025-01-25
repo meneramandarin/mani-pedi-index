@@ -38,12 +38,26 @@ const MapView = ({ data, filter }) => {
       });
 
       googleMap.addListener('zoom_changed', () => {
-        setCurrentZoom(googleMap.getZoom());
+        const newZoom = googleMap.getZoom();
+        setCurrentZoom(newZoom);
       });
 
       setMap(googleMap);
     });
   }, []);
+
+  // Add new useEffect for marker visibility
+  useEffect(() => {
+    if (!map || !markers.length || !countryMarkers.length) return;
+    
+    if (currentZoom >= ZOOM_THRESHOLD) {
+      markers.forEach(marker => marker.setMap(map));
+      countryMarkers.forEach(marker => marker.setMap(null));
+    } else {
+      markers.forEach(marker => marker.setMap(null));
+      countryMarkers.forEach(marker => marker.setMap(map));
+    }
+  }, [currentZoom, map, markers, countryMarkers]);
 
   useEffect(() => {
     if (!map || !data.length) return;
@@ -52,7 +66,6 @@ const MapView = ({ data, filter }) => {
     markers.forEach(marker => marker.setMap(null));
     countryMarkers.forEach(marker => marker.setMap(null));
 
-    // Group data by country and city
     const groupedData = data.reduce((acc, item) => {
       if (!acc[item.country]) {
         acc[item.country] = {
@@ -73,13 +86,11 @@ const MapView = ({ data, filter }) => {
         };
       }
 
-      // Update city stats
       acc[item.country].cities[item.city].totalPrice += item.price;
       acc[item.country].cities[item.city].totalTime += item.time;
       acc[item.country].cities[item.city].totalRating += item.rating;
       acc[item.country].cities[item.city].submissions++;
 
-      // Update country stats
       acc[item.country].totalPrice += item.price;
       acc[item.country].totalTime += item.time;
       acc[item.country].totalRating += item.rating;
@@ -90,7 +101,6 @@ const MapView = ({ data, filter }) => {
 
     const geocoder = new window.google.maps.Geocoder();
 
-    // Create country markers
     const countryPromises = Object.entries(groupedData).map(([country, data]) => 
       new Promise((resolve) => {
         geocoder.geocode({ address: country }, (results, status) => {
@@ -138,7 +148,6 @@ const MapView = ({ data, filter }) => {
       })
     );
 
-    // Create city markers
     const cityPromises = Object.entries(groupedData).flatMap(([country, countryData]) =>
       Object.entries(countryData.cities).map(([city, cityData]) =>
         new Promise((resolve) => {
@@ -196,18 +205,6 @@ const MapView = ({ data, filter }) => {
     });
 
   }, [map, data, filter, currentZoom]);
-
-  useEffect(() => {
-    if (!map) return;
-
-    countryMarkers.forEach(marker => {
-      marker.setMap(currentZoom < ZOOM_THRESHOLD ? map : null);
-    });
-
-    markers.forEach(marker => {
-      marker.setMap(currentZoom >= ZOOM_THRESHOLD ? map : null);
-    });
-  }, [currentZoom, map, markers, countryMarkers]);
 
   return (
     <div id="map" className="w-full h-96 rounded-lg shadow-md" />
