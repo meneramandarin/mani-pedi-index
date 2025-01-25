@@ -5,6 +5,7 @@
   "proxy": "https://mani-pedi-index.com",
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
+    "@googlemaps/markerclusterer": "^2.5.3",
     "@supabase/supabase-js": "^2.47.10",
     "cra-template": "1.2.0",
     "react": "^19.0.0",
