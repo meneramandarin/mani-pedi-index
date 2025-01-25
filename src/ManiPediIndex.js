@@ -1,9 +1,6 @@
-// TODO:
-
-// email verification?? 
-
 import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
+import MapView from './mapview';  // Adjust path as needed
 
 const ManiPediIndex = () => {
   const [formData, setFormData] = useState({
@@ -103,6 +100,9 @@ const ManiPediIndex = () => {
     }
   };
 
+  // map view meowww
+  const [showMap, setShowMap] = useState(false);
+
   const handleCityChange = (newValue) => {
     setSelectedCity(newValue);
   };
@@ -128,7 +128,7 @@ const ManiPediIndex = () => {
       </div>
     );
   };
-
+  
   // block users from submitting more than one data point per city every 3 weeks
   const checkLastSubmission = (city, isMani) => {
     const submissions = JSON.parse(localStorage.getItem('maniPediSubmissions') || '{}');
@@ -381,7 +381,22 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
         >
           Pedicure Data Only
         </button>
-      </div>
+        <button
+          onClick={() => setShowMap (!showMap)}
+          className={`px-4 py-2 rounded-md ${
+            showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+          }`}
+        >
+          Map View
+        </button>
+        </div>
+
+        {/* Map View */}
+      {showMap && (
+          <div className="bg-pink-50 rounded-lg p-4 mb-8">
+             <MapView data={allData} filter={filter} />
+         </div>
+          )}
 
       {/* Form */}
       <div className="bg-pink-50 rounded-lg p-6 max-w-xl mx-auto">
