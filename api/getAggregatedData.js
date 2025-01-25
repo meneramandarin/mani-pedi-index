@@ -9,12 +9,12 @@ async function aggregateData(rawData) {
   console.log('Raw data received:', rawData);
   
   const groupedData = rawData.reduce((acc, curr) => {
-    // Unique key for each city + service type combination
-    const key = curr.city;
-    console.log('Processing city and service:', key);
+    // Unique key for mani and pedi
+    const maniKey = `${curr.city}-mani`;
+    const pediKey = `${curr.city}-pedi`;
     
-    if (!acc[key]) {
-      acc[key] = {
+    if (curr.is_mani && !acc[maniKey]) {
+      acc[maniKey] = {
         city: curr.city,
         neighborhood: curr.neighborhood,
         country: curr.country,
@@ -22,35 +22,52 @@ async function aggregateData(rawData) {
         timeSum: 0,
         ratingSum: 0,
         count: 0,
-        is_mani: curr.is_mani,
-        is_pedi: curr.is_pedi
+        is_mani: true,
+        is_pedi: false
+      };
+    }
+    if (curr.is_pedi && !acc[pediKey]) {
+      acc[pediKey] = {
+        city: curr.city,
+        neighborhood: curr.neighborhood,
+        country: curr.country,
+        priceSum: 0,
+        timeSum: 0,
+        ratingSum: 0,
+        count: 0,
+        is_mani: false,
+        is_pedi: true
       };
     }
     
-    // Accumulate data for the city + service type
-    acc[key].priceSum += Number(curr.price);
-    acc[key].timeSum += Number(curr.time);
-    acc[key].ratingSum += Number(curr.rating);
-    acc[key].count += 1;
+    // Add to appropriate totals
+    if (curr.is_mani) {
+      acc[maniKey].priceSum += Number(curr.price);
+      acc[maniKey].timeSum += Number(curr.time);
+      acc[maniKey].ratingSum += Number(curr.rating);
+      acc[maniKey].count += 1;
+    }
+    if (curr.is_pedi) {
+      acc[pediKey].priceSum += Number(curr.price);
+      acc[pediKey].timeSum += Number(curr.time);
+      acc[pediKey].ratingSum += Number(curr.rating);
+      acc[pediKey].count += 1;
+    }
     
     return acc;
   }, {});
-
-  console.log('Grouped data:', groupedData);
   
-  const result = Object.values(groupedData).map(data => ({
+  // Calculate averages
+  return Object.values(groupedData).map(data => ({
     city: data.city,
     neighborhood: data.neighborhood,
     country: data.country,
-    price: data.priceSum / data.count, // Calculate average price
-    time: data.timeSum / data.count, // Calculate average time
-    rating: data.ratingSum / data.count, // Calculate average rating
+    price: data.priceSum / data.count,
+    time: data.timeSum / data.count,
+    rating: data.ratingSum / data.count,
     is_mani: data.is_mani,
     is_pedi: data.is_pedi
   }));
-
-  console.log('Final aggregated result:', result);
-  return result;
 }
 
 export default async function handler(req, res) {
