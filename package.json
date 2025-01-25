@@ -11,7 +11,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-scripts": "5.0.1",
-    "react-select": "^5.9.0"
+    "react-select": "^5.9.0",
+    "turf": "^3.0.14"
   },
   "scripts": {
     "start": "react-scripts start",
