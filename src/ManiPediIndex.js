@@ -1,3 +1,9 @@
+// TODO: 
+// mobile UI improvements, make data view selection movable 
+// combine mani and pedi data also in map view 
+// extend price range to 100 (anything else is a rip off and won't show in accumulation anyways)
+// zoom for neighborhood level in map view, e.g. Brooklyn, NY
+
 import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
 import MapView from './mapview';  // Adjust path as needed
@@ -360,48 +366,54 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
       </div>
 
       {/* Toggle Buttons */}
-      <div className="flex justify-center space-x-4 mb-8">
-  <button
-    onClick={() => {
-      setFilter('all');
-      setShowMap(false);
-    }}
-    className={`px-4 py-2 rounded-md ${
-      filter === 'all' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-    }`}
-  >
-    Combined Data
-  </button>
-  <button
-    onClick={() => {
-      setFilter('mani');
-      setShowMap(false);
-    }}
-    className={`px-4 py-2 rounded-md ${
-      filter === 'mani' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-    }`}
-  >
-    Manicure Data Only
-  </button>
-  <button
-    onClick={() => {
-      setFilter('pedi');
-      setShowMap(false);
-    }}
-    className={`px-4 py-2 rounded-md ${
-      filter === 'pedi' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-    }`}
-  >
-    Pedicure Data Only
-  </button>
-  <button
-    onClick={() => setShowMap(true)}
-    className={`px-4 py-2 rounded-md ${
-      showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-    }`}
-  >
-    Map View
-  </button>
+<div className="relative w-full mb-8">
+  {/* Scrollable container */}
+  <div className="flex overflow-x-auto no-scrollbar px-4">
+    {/* Inner container for buttons - adding md:justify-center and w-full */}
+    <div className="flex space-x-4 min-w-max md:min-w-full md:justify-center">
+      <button
+        onClick={() => {
+          setFilter('all');
+          setShowMap(false);
+        }}
+        className={`shrink-0 px-4 py-2 rounded-md ${
+          filter === 'all' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+        }`}
+      >
+        Combined Data
+      </button>
+      <button
+        onClick={() => {
+          setFilter('mani');
+          setShowMap(false);
+        }}
+        className={`shrink-0 px-4 py-2 rounded-md ${
+          filter === 'mani' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+        }`}
+      >
+        Manicure Data Only
+      </button>
+      <button
+        onClick={() => {
+          setFilter('pedi');
+          setShowMap(false);
+        }}
+        className={`shrink-0 px-4 py-2 rounded-md ${
+          filter === 'pedi' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+        }`}
+      >
+        Pedicure Data Only
+      </button>
+      <button
+        onClick={() => setShowMap(true)}
+        className={`shrink-0 px-4 py-2 rounded-md ${
+          showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+        }`}
+      >
+        Map View
+      </button>
+    </div>
+  </div>
 </div>
 
       {/* Form */}
