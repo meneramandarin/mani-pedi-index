@@ -1,7 +1,7 @@
 // TODO: 
 // combine mani and pedi data also in map view 
+// think about UI on mobile 
 // zoom for neighborhood level in map view, e.g. Brooklyn, NY
-// add global leaderboard 
 
 import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
@@ -117,6 +117,9 @@ const ManiPediIndex = () => {
 
   // leaderboard
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+  // Separate data for leaderboard that always shows all entries
+  const leaderboardData = allData;
   
   // Rating
   const StarRating = ({ rating, setRating }) => {
@@ -291,7 +294,7 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
       </h2>
 
      {/* Chart, MAP, or Leaderboard */}
-<div className="bg-pink-50 rounded-lg p-4 mb-8">
+     <div className="bg-pink-50 rounded-lg p-4 mb-8">
   {showMap ? (
     <MapView data={allData} filter={filter} />
   ) : showLeaderboard ? (
@@ -308,7 +311,7 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
           </tr>
         </thead>
         <tbody>
-          {filteredData
+          {leaderboardData
             .sort((a, b) => b.rating - a.rating)
             .map((city, index) => (
               <tr key={`${city.city}-${index}`} className="border-t border-pink-100">
@@ -413,61 +416,65 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
   <div className="flex overflow-x-auto no-scrollbar px-4">
     {/* Inner container for buttons - adding md:justify-center and w-full */}
     <div className="flex space-x-4 min-w-max md:min-w-full md:justify-center">
-      <button
-        onClick={() => {
-          setFilter('all');
-          setShowMap(false);
-          setShowLeaderboard(false);
-        }}
-        className={`shrink-0 px-4 py-2 rounded-md ${
-          filter === 'all' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-        }`}
-      >
-        Combined Data
-      </button>
-      <button
-        onClick={() => {
-          setFilter('mani');
-          setShowMap(false);
-          setShowLeaderboard(false);
-        }}
-        className={`shrink-0 px-4 py-2 rounded-md ${
-          filter === 'mani' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-        }`}
-      >
-        Manicure Data Only
-      </button>
-      <button
-        onClick={() => {
-          setFilter('pedi');
-          setShowMap(false);
-          setShowLeaderboard(false);
-        }}
-        className={`shrink-0 px-4 py-2 rounded-md ${
-          filter === 'pedi' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-        }`}
-      >
-        Pedicure Data Only
-      </button>
-      <button
-        onClick={() => setShowMap(true)}
-        className={`shrink-0 px-4 py-2 rounded-md ${
-          showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-        }`}
-      >
-        Map View
-      </button>
-      <button
-    onClick={() => {
-      setShowLeaderboard(true);
-      setShowMap(false);
-    }}
-    className={`shrink-0 px-4 py-2 rounded-md ${
-      showLeaderboard ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
-    }`}
-  >
-    Global Leaderboard
-  </button>
+    <button
+  onClick={() => {
+    setFilter('all');
+    setShowMap(false);
+    setShowLeaderboard(false);
+  }}
+  className={`shrink-0 px-4 py-2 rounded-md ${
+    filter === 'all' && !showMap && !showLeaderboard ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+  }`}
+>
+  Combined Data
+</button>
+<button
+  onClick={() => {
+    setFilter('mani');
+    setShowMap(false);
+    setShowLeaderboard(false);
+  }}
+  className={`shrink-0 px-4 py-2 rounded-md ${
+    filter === 'mani' && !showMap && !showLeaderboard ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+  }`}
+>
+  Manicure Data Only
+</button>
+<button
+  onClick={() => {
+    setFilter('pedi');
+    setShowMap(false);
+    setShowLeaderboard(false);
+  }}
+  className={`shrink-0 px-4 py-2 rounded-md ${
+    filter === 'pedi' && !showMap && !showLeaderboard ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+  }`}
+>
+  Pedicure Data Only
+</button>
+<button
+  onClick={() => {
+    setShowMap(true);
+    setShowLeaderboard(false);
+  }}
+  className={`shrink-0 px-4 py-2 rounded-md ${
+    showMap && !showLeaderboard ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+  }`}
+>
+  Map View
+</button>
+<button
+  onClick={() => {
+    setShowLeaderboard(true);
+    setShowMap(false);
+    setFilter('all');
+  }}
+  className={`shrink-0 px-4 py-2 rounded-md ${
+    showLeaderboard ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+  }`}
+>
+  Global Leaderboard
+</button>
     </div>
   </div>
 </div>
