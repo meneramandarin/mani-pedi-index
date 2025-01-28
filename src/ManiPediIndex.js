@@ -417,6 +417,7 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
         onClick={() => {
           setFilter('all');
           setShowMap(false);
+          setShowLeaderboard(false);
         }}
         className={`shrink-0 px-4 py-2 rounded-md ${
           filter === 'all' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
@@ -428,6 +429,7 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
         onClick={() => {
           setFilter('mani');
           setShowMap(false);
+          setShowLeaderboard(false);
         }}
         className={`shrink-0 px-4 py-2 rounded-md ${
           filter === 'mani' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
@@ -439,6 +441,7 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
         onClick={() => {
           setFilter('pedi');
           setShowMap(false);
+          setShowLeaderboard(false);
         }}
         className={`shrink-0 px-4 py-2 rounded-md ${
           filter === 'pedi' && !showMap ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
