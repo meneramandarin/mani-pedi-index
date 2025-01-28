@@ -1,8 +1,7 @@
 // TODO: 
-// mobile UI improvements
 // combine mani and pedi data also in map view 
-// extend price range to 100 (anything else is a rip off and won't show in accumulation anyways)
 // zoom for neighborhood level in map view, e.g. Brooklyn, NY
+// add global leaderboard 
 
 import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
@@ -116,6 +115,9 @@ const ManiPediIndex = () => {
   const maxPrice = 100;
   const maxTime = 5;
 
+  // leaderboard
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  
   // Rating
   const StarRating = ({ rating, setRating }) => {
     return (
@@ -288,10 +290,47 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
         💅 Global Mani-Pedi Index 💅
       </h2>
 
-     {/* Chart or MAP */}
+     {/* Chart, MAP, or Leaderboard */}
 <div className="bg-pink-50 rounded-lg p-4 mb-8">
   {showMap ? (
     <MapView data={allData} filter={filter} />
+  ) : showLeaderboard ? (
+    <div className="overflow-y-auto max-h-[500px]">
+      <table className="w-full">
+        <thead className="sticky top-0 bg-white">
+          <tr>
+            <th className="px-4 py-2 text-left text-pink-800">Rank</th>
+            <th className="px-4 py-2 text-left text-pink-800">City</th>
+            <th className="px-4 py-2 text-left text-pink-800">Rating</th>
+            <th className="px-4 py-2 text-left text-pink-800">Price</th>
+            <th className="px-4 py-2 text-left text-pink-800">Time</th>
+            <th className="px-4 py-2 text-left text-pink-800">Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredData
+            .sort((a, b) => b.rating - a.rating)
+            .map((city, index) => (
+              <tr key={`${city.city}-${index}`} className="border-t border-pink-100">
+                <td className="px-4 py-2 text-pink-800">#{index + 1}</td>
+                <td className="px-4 py-2 text-pink-800">{city.city}</td>
+                <td className="px-4 py-2 text-pink-800">
+                  {city.rating.toFixed(1)} ★
+                </td>
+                <td className="px-4 py-2 text-pink-800">${city.price.toFixed(2)}</td>
+                <td className="px-4 py-2 text-pink-800">{city.time.toFixed(1)}h</td>
+                <td className="px-4 py-2 text-pink-800">
+                  {city.is_mani && city.is_pedi 
+                    ? 'Both' 
+                    : city.is_mani 
+                      ? 'Mani' 
+                      : 'Pedi'}
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
   ) : (
     <div className="overflow-x-auto no-scrollbar">
       <div className="relative h-[400px] min-w-[600px] border border-pink-200 bg-white rounded-lg p-16">
@@ -415,6 +454,17 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
       >
         Map View
       </button>
+      <button
+    onClick={() => {
+      setShowLeaderboard(true);
+      setShowMap(false);
+    }}
+    className={`shrink-0 px-4 py-2 rounded-md ${
+      showLeaderboard ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-800'
+    }`}
+  >
+    Global Leaderboard
+  </button>
     </div>
   </div>
 </div>
