@@ -1,5 +1,5 @@
 // TODO: 
-// mobile UI improvements, make data view selection movable 
+// mobile UI improvements
 // combine mani and pedi data also in map view 
 // extend price range to 100 (anything else is a rip off and won't show in accumulation anyways)
 // zoom for neighborhood level in map view, e.g. Brooklyn, NY
@@ -113,7 +113,7 @@ const ManiPediIndex = () => {
     setSelectedCity(newValue);
   };
 
-  const maxPrice = 50;
+  const maxPrice = 100;
   const maxTime = 5;
 
   // Rating
@@ -288,12 +288,14 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
         💅 Global Mani-Pedi Index 💅
       </h2>
 
-      {/* Chart or MAP */}
-      <div className="bg-pink-50 rounded-lg p-4 mb-8">
-        {showMap ? (
-          <MapView data={allData} filter={filter} />
-      ) : (
-        <div className="relative h-[400px] w-full border border-pink-200 bg-white rounded-lg p-16">
+     {/* Chart or MAP */}
+<div className="bg-pink-50 rounded-lg p-4 mb-8">
+  {showMap ? (
+    <MapView data={allData} filter={filter} />
+  ) : (
+    <div className="overflow-x-auto no-scrollbar">
+      <div className="relative h-[400px] min-w-[600px] border border-pink-200 bg-white rounded-lg p-16">
+
           {/* Y-axis values */}
           <div className="absolute left-4 top-16 bottom-16 flex flex-col justify-between text-sm text-pink-800">
             {[5, 4, 3, 2, 1, 0].map((num) => (
@@ -303,7 +305,7 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
 
           {/* X-axis values */}
           <div className="absolute bottom-4 left-16 right-16 flex justify-between text-sm text-pink-800">
-            {[0, 10, 20, 30, 40, 50].map((num) => (
+            {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((num) => (
               <span key={num}>${num}</span>
             ))}
           </div>
@@ -361,6 +363,7 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
           >
             Time (hrs)
           </div>
+        </div>
         </div>
       )}
       </div>
