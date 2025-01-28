@@ -70,6 +70,38 @@ async function aggregateData(rawData) {
   }));
 }
 
+async function aggregateLeaderboardData(rawData) {
+  const groupedData = rawData.reduce((acc, curr) => {
+    const cityKey = curr.city;
+    
+    if (!acc[cityKey]) {
+      acc[cityKey] = {
+        city: curr.city,
+        country: curr.country,
+        priceSum: 0,
+        timeSum: 0,
+        ratingSum: 0,
+        count: 0
+      };
+    }
+    
+    acc[cityKey].priceSum += Number(curr.price);
+    acc[cityKey].timeSum += Number(curr.time);
+    acc[cityKey].ratingSum += Number(curr.rating);
+    acc[cityKey].count += 1;
+    
+    return acc;
+  }, {});
+  
+  return Object.values(groupedData).map(data => ({
+    city: data.city,
+    country: data.country,
+    price: data.priceSum / data.count,
+    time: data.timeSum / data.count,
+    rating: data.ratingSum / data.count
+  }));
+}
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -101,7 +133,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ 
       success: true, 
-      data: aggregatedData 
+      data: aggregatedData, 
+      leaderboardData: await aggregateLeaderboardData(data)
     })
   } catch (error) {
     console.error('Handler error:', error);
