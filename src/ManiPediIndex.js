@@ -62,7 +62,7 @@ const ManiPediIndex = () => {
         if (isDev) {
           setAllData(result);
         } else if (result.success) {
-          setAllData(result.data);
+          setAllData(result.leaderboardData);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
