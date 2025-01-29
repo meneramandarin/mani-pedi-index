@@ -71,6 +71,9 @@ async function aggregateData(rawData) {
 }
 
 async function aggregateLeaderboardData(rawData) {
+  // Log the raw data first
+  console.log('Raw data for leaderboard:', rawData);
+  
   const groupedData = rawData.reduce((acc, curr) => {
     const cityKey = curr.city;
     
@@ -85,22 +88,33 @@ async function aggregateLeaderboardData(rawData) {
       };
     }
     
+    // Log each addition
+    console.log(`Adding data for ${curr.city}:`, curr);
+    
     acc[cityKey].priceSum += Number(curr.price);
     acc[cityKey].timeSum += Number(curr.time);
     acc[cityKey].ratingSum += Number(curr.rating);
     acc[cityKey].count += 1;
     
+    // Log the running totals
+    console.log(`Current totals for ${curr.city}:`, acc[cityKey]);
+    
     return acc;
   }, {});
   
-  return Object.values(groupedData).map(data => ({
+  const result = Object.values(groupedData).map(data => ({
     city: data.city,
     country: data.country,
     price: data.priceSum / data.count,
     time: data.timeSum / data.count,
     rating: data.ratingSum / data.count,
-    totalServices: data.count,
+    totalServices: data.count
   }));
+  
+  // Log final result
+  console.log('Final leaderboard data:', result);
+  
+  return result;
 }
 
 export default async function handler(req, res) {
