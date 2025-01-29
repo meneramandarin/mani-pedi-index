@@ -98,7 +98,8 @@ async function aggregateLeaderboardData(rawData) {
     country: data.country,
     price: data.priceSum / data.count,
     time: data.timeSum / data.count,
-    rating: data.ratingSum / data.count
+    rating: data.ratingSum / data.count,
+    totalServices: data.count,
   }));
 }
 
