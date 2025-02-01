@@ -338,7 +338,10 @@ if (formData.is_pedi && checkLastSubmission(selectedCity.parsedComponents.city, 
   {showMap ? (
     <MapView data={allData} filter={filter} />
   ) : showLeaderboard ? (
-    <CombinedLeaderboard data={allData} />
+    <CombinedLeaderboard 
+      // Pass leaderboardData in production, raw data in dev
+      data={isDev ? allData : (allData.leaderboardData || allData)} 
+    />
   ) : (
     <div className="overflow-x-auto no-scrollbar">
       <div className="relative h-[400px] min-w-[600px] border border-pink-200 bg-white rounded-lg p-16">
