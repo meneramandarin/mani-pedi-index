@@ -22,17 +22,42 @@ const ManiPediIndex = () => {
   
   // This filters the data based on the selected service type
   const filteredData = React.useMemo(() => {
-    return allData.filter(data => {
-      if (!data) return false;
-      switch (filter) {
-        case 'mani':
-          return data.is_mani === true;
-        case 'pedi':
-          return data.is_pedi === true;
-        default:
-          return true;
-      }
-    });
+    if (!allData?.length) return [];
+    
+    switch (filter) {
+      case 'mani':
+        return allData.filter(data => data.is_mani === true);
+      case 'pedi':
+        return allData.filter(data => data.is_pedi === true);
+      default: // 'all' case - combine mani and pedi data per city
+        const cityData = allData.reduce((acc, curr) => {
+          if (!curr) return acc;
+          
+          const cityKey = curr.city;
+          if (!acc[cityKey]) {
+            acc[cityKey] = {
+              city: curr.city,
+              country: curr.country,
+              priceSum: 0,
+              timeSum: 0,
+              count: 0
+            };
+          }
+          
+          acc[cityKey].priceSum += curr.price;
+          acc[cityKey].timeSum += curr.time;
+          acc[cityKey].count += 1;
+          
+          return acc;
+        }, {});
+  
+        return Object.values(cityData).map(data => ({
+          city: data.city,
+          country: data.country,
+          price: data.priceSum / data.count,
+          time: data.timeSum / data.count
+        }));
+    }
   }, [allData, filter]);
 
   console.log('Environment variables:', {
