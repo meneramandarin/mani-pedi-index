@@ -82,31 +82,34 @@ const ManiPediIndex = () => {
       }
     : {};
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log('Attempting to fetch from:', fetchUrl);
-        console.log('With options:', fetchOptions);
-
-        const response = await fetch(fetchUrl, fetchOptions);
-        const result = await response.json();
-        console.log('Fetch result:', result);
-
-        const standardizedData = isDev ? result : result.data;
-        
-        if (!standardizedData) {
-          console.error('No data received');
-          return;
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          console.log('Attempting to fetch from:', fetchUrl);
+          const response = await fetch(fetchUrl, fetchOptions);
+          const result = await response.json();
+          
+          // Debug logs
+          console.log('Environment:', isDev ? 'Development' : 'Production');
+          console.log('Raw result:', result);
+          console.log('Result structure:', {
+            hasData: !!result.data,
+            hasLeaderboardData: !!result.leaderboardData,
+            dataLength: result.data?.length,
+            leaderboardDataLength: result.leaderboardData?.length
+          });
+  
+          const finalData = isDev ? result : result.data;
+          console.log('Final data structure:', finalData);
+          
+          setAllData(finalData);
+        } catch (error) {
+          console.error('Error fetching data:', error);
         }
-
-        setAllData(standardizedData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, [fetchUrl]);
+      };
+  
+      fetchData();
+    }, [fetchUrl]);
 
   const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
