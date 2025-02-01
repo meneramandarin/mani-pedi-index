@@ -154,6 +154,18 @@ export default async function handler(req, res) {
       .from('mani_pedi_data')
       .select('*')
 
+      console.log('Raw Supabase response in getAggregatedData:', {
+        dataLength: data?.length,
+        firstFewRecords: data?.slice(0, 3).map(d => ({
+          city: d.city,
+          is_mani: d.is_mani,
+          is_pedi: d.is_pedi,
+          price: d.price,
+          time: d.time
+        })),
+        error
+      });
+
     if (error) {
       console.error('Supabase error:', error);
       throw error;

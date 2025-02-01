@@ -20,7 +20,17 @@ export default async function handler(req, res) {
         .from('mani_pedi_data')
         .select('*')
   
-      console.log('Supabase response:', { data, error });
+        console.log('Raw Supabase response in getData:', {
+          dataLength: data?.length,
+          firstFewRecords: data?.slice(0, 3).map(d => ({
+            city: d.city,
+            is_mani: d.is_mani,
+            is_pedi: d.is_pedi,
+            price: d.price,
+            time: d.time
+          })),
+          error
+        });
   
       if (error) throw error
   
