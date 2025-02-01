@@ -2,18 +2,21 @@ import React from 'react';
 import _ from 'lodash';
 
 const CombinedLeaderboard = ({ data }) => {
-  // Group data by city and calculate combined averages
+  // First, get the total submissions count per city from raw data
+  const submissionCounts = _.countBy(data, 'city');
+
+  // Then group and calculate averages
   const combinedData = _.chain(data)
     .groupBy('city')
     .map((cityData, city) => {
       const totalCount = cityData.length;
       return {
         city,
-        country: cityData[0].country, // All entries for a city should have same country
+        country: cityData[0].country,
         rating: _.sumBy(cityData, 'rating') / totalCount,
         price: _.sumBy(cityData, 'price') / totalCount,
         time: _.sumBy(cityData, 'time') / totalCount,
-        totalServices: totalCount
+        totalServices: submissionCounts[city] // Use the raw count instead
       };
     })
     .value();
