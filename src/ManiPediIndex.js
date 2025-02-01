@@ -21,11 +21,19 @@ const ManiPediIndex = () => {
   const [filter, setFilter] = useState('all'); // this is for the graph filter
   
   // This filters the data based on the selected service type
-  const filteredData = allData.filter(data => {
-    if (filter === 'mani') return data.is_mani;
-    if (filter === 'pedi') return data.is_pedi;
-    return true; // 'all'
-});
+  const filteredData = React.useMemo(() => {
+    return allData.filter(data => {
+      if (!data) return false;
+      switch (filter) {
+        case 'mani':
+          return data.is_mani === true;
+        case 'pedi':
+          return data.is_pedi === true;
+        default:
+          return true;
+      }
+    });
+  }, [allData, filter]);
 
   console.log('Environment variables:', {
     isDev: process.env.NODE_ENV === 'development',
@@ -59,11 +67,14 @@ const ManiPediIndex = () => {
         const result = await response.json();
         console.log('Fetch result:', result);
 
-        if (isDev) {
-          setAllData(result);
-        } else if (result.success) {
-          setAllData(result.leaderboardData);
+        const standardizedData = isDev ? result : result.data;
+        
+        if (!standardizedData) {
+          console.error('No data received');
+          return;
         }
+
+        setAllData(standardizedData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
