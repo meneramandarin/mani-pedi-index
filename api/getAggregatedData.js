@@ -108,7 +108,6 @@ async function aggregateLeaderboardData(rawData) {
     price: data.priceSum / data.count,
     time: data.timeSum / data.count,
     rating: data.ratingSum / data.count,
-    totalServices: data.count
   }));
   
   // Log final result
