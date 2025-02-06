@@ -16,7 +16,7 @@ const CombinedLeaderboard = ({ data }) => {
         rating: _.sumBy(cityData, 'rating') / totalCount,
         price: _.sumBy(cityData, 'price') / totalCount,
         time: _.sumBy(cityData, 'time') / totalCount,
-        totalServices: submissionCounts[city] // Use the raw count instead
+        // totalServices: submissionCounts[city] // Use the raw count instead
       };
     })
     .value();
@@ -34,7 +34,6 @@ const CombinedLeaderboard = ({ data }) => {
             <th className="px-4 py-2 text-left text-pink-800">Rating</th>
             <th className="px-4 py-2 text-left text-pink-800">Price</th>
             <th className="px-4 py-2 text-left text-pink-800">Time</th>
-            <th className="px-4 py-2 text-left text-pink-800">Total Services</th>
           </tr>
         </thead>
         <tbody>
@@ -47,7 +46,6 @@ const CombinedLeaderboard = ({ data }) => {
               </td>
               <td className="px-4 py-2 text-pink-800">${city.price.toFixed(2)}</td>
               <td className="px-4 py-2 text-pink-800">{city.time.toFixed(1)}h</td>
-              <td className="px-4 py-2 text-pink-800">{city.totalServices}</td>
             </tr>
           ))}
         </tbody>
